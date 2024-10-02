@@ -1,2 +1,2 @@
 # social_network_system_design
-Курс System Design (Балун)
+System Design социальной сети для курса по System Design https://balun.courses/courses/system_design
