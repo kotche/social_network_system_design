@@ -1,0 +1,689 @@
+openapi: 3.0.0
+
+tags:
+  - name: Posts
+  - name: Reactions
+  - name: Comments
+  - name: Users
+
+info:
+  title: API социальной сети для путешественников
+  version: 1.0.0
+
+paths:
+  /create_post:
+    post:
+      description: Создать пост
+      tags:
+        - Posts
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostInput'
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: integer
+                description: Идентификатор поста
+        400:
+          $ref: '#/components/responses/400'
+        500:
+          $ref: '#/components/responses/500'
+
+  /update_post/{id}:
+    put:
+      description: Обновить пост
+      tags:
+        - Posts
+      parameters:
+        - name: id
+          in: path
+          description: Идентификатор поста
+          required: true
+          schema:
+            type: integer
+            description: идентификатор поста
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostInput'
+      responses:
+        200:
+          $ref: '#/components/responses/200'
+        400:
+          $ref: '#/components/responses/400'
+        404:
+          $ref: '#/components/responses/404'
+        500:
+          $ref: '#/components/responses/500'
+
+  /delete_post/{id}:
+    delete:
+      description: Удалить пост
+      tags:
+        - Posts
+      parameters:
+        - name: id
+          in: path
+          description: Идентификатор поста
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          $ref: '#/components/responses/200'
+        400:
+          $ref: '#/components/responses/400'
+        404:
+          $ref: '#/components/responses/404'
+        500:
+          $ref: '#/components/responses/500'
+
+  /get_post/{id}:
+    get:
+      description: Получить пост
+      tags:
+        - Posts
+      parameters:
+        - name: id
+          in: path
+          description: Идентификатор поста
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PostOutput'
+        400:
+          $ref: '#/components/responses/400'
+        500:
+          $ref: '#/components/responses/500'
+
+  /list_posts:
+    get:
+      description: Получить список постов
+      tags:
+        - Posts
+      parameters:
+        - name: userId
+          in: query
+          description: Фильтр по пользователю
+          required: false
+          schema:
+            type: integer
+        - name: locations
+          in: query
+          description: Фильтр по локациям
+          required: false
+          schema:
+            $ref: '#/components/schemas/Locations'
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          required: false
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PostOutput'
+        400:
+          $ref: '#/components/responses/400'
+        500:
+          $ref: '#/components/responses/500'
+
+  /posts/popular_locations:
+    get:
+      description: Получить список популярных локаций из постов
+      tags:
+        - Posts
+      parameters:
+        - name: target
+          in: query
+          description: Фильтр по локациям
+          required: true
+          schema:
+            $ref: '#/components/schemas/Locations'
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          required: false
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Ok
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Locations'
+        400:
+          $ref: '#/components/responses/400'
+        500:
+          $ref: '#/components/responses/500'
+
+  /posts/{postId}/add_photos:
+    post:
+      description: Прикрепить фотографии к посту
+      tags:
+        - Posts
+      parameters:
+        - name: postId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Идентификатор поста, к которому прикрепляются фото
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Photos'
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PhotoUrls'
+        400:
+          $ref: '#/components/responses/400'
+        404:
+          $ref: '#/components/responses/404'
+        500:
+          $ref: '#/components/responses/500'
+
+  /posts/{postId}/delete_photos:
+    post:
+      description: Удалить фотографии из поста
+      tags:
+        - Posts
+      parameters:
+        - name: postId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Идентификатор поста, из которого нужно удалить фото
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PhotoUrls'
+      responses:
+        200:
+          $ref: '#/components/responses/200'
+        400:
+          $ref: '#/components/responses/400'
+        404:
+          $ref: '#/components/responses/404'
+        500:
+          $ref: '#/components/responses/500'
+
+  /posts/create_reaction:
+    post:
+      description: Создать реакцию
+      tags:
+        - Reactions
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReactionIn'
+      responses:
+        200:
+          description: Ok
+          content:
+            application/json:
+              schema:
+                type: integer
+                description: Идентификатор реакции
+        400:
+          $ref: '#/components/responses/400'
+        500:
+          $ref: '#/components/responses/500'
+
+  /delete_reaction/{id}:
+    delete:
+      description: Удалить реакцию
+      tags:
+        - Reactions
+      parameters:
+        - name: id
+          in: path
+          description: Идентификатор реакции
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          $ref: '#/components/responses/200'
+        400:
+          $ref: '#/components/responses/400'
+        500:
+          $ref: '#/components/responses/500'
+
+  /posts/{postId}/list_reactions:
+    get:
+      description: Получить реакции поста
+      tags:
+        - Reactions
+      parameters:
+        - name: postId
+          in: path
+          description: Идентификатор поста
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ReactionOut'
+        400:
+          $ref: '#/components/responses/400'
+        500:
+          $ref: '#/components/responses/500'
+
+  /posts/{postId}/create_comment:
+    post:
+      description: Добавить комментарий к посту
+      tags:
+        - Comments
+      parameters:
+        - name: postId
+          in: path
+          description: Идентификатор поста
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommentInput'
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: integer
+                description: Идентификатор комментария
+        400:
+          $ref: '#/components/responses/400'
+        500:
+          $ref: '#/components/responses/500'
+
+  /update_comment/{commentId}:
+    put:
+      description: Обновить комментарий
+      tags:
+        - Comments
+      parameters:
+        - name: commentId
+          in: path
+          description: Идентификатор комментария
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommentInput'
+      responses:
+        200:
+          $ref: '#/components/responses/200'
+        400:
+          $ref: '#/components/responses/400'
+        404:
+          $ref: '#/components/responses/404'
+        500:
+          $ref: '#/components/responses/500'
+
+  /delete_comment/{commentId}:
+    delete:
+      description: Удалить комментарий
+      tags:
+        - Comments
+      parameters:
+        - name: commentId
+          in: path
+          description: Идентификатор комментария
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          $ref: '#/components/responses/200'
+        400:
+          $ref: '#/components/responses/400'
+        404:
+          $ref: '#/components/responses/404'
+        500:
+          $ref: '#/components/responses/500'
+
+  /posts/{postId}/list_comments:
+    get:
+      description: Получить комментарии поста
+      tags:
+        - Comments
+      parameters:
+        - name: postId
+          in: path
+          description: Идентификатор поста
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CommentOutput'
+        400:
+          $ref: '#/components/responses/400'
+        500:
+          $ref: '#/components/responses/500'
+
+  /users/{userId}/follow:
+    post:
+      description: Подписаться на пользователя
+      tags:
+        - Users
+      parameters:
+        - name: userId
+          in: path
+          description: Идентификатор пользователя, на которого происходит подписка
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FollowRequest'
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: string
+                description: Успешная подписка
+        400:
+          $ref: '#/components/responses/400'
+        404:
+          $ref: '#/components/responses/404'
+        500:
+          $ref: '#/components/responses/500'
+
+  /users/{userId}/unfollow:
+    post:
+      description: Отписаться от пользователя
+      tags:
+        - Users
+      parameters:
+        - name: userId
+          in: path
+          description: Идентификатор пользователя, от которого происходит отписка
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FollowRequest'
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: string
+                description: Успешная отписка
+        400:
+          $ref: '#/components/responses/400'
+        404:
+          $ref: '#/components/responses/404'
+        500:
+          $ref: '#/components/responses/500'
+
+  /users/{userId}/followers:
+    get:
+      description: Получить список подписчиков пользователя
+      tags:
+        - Users
+      parameters:
+        - name: userId
+          in: path
+          description: Идентификатор пользователя
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FollowerOutput'
+        400:
+          $ref: '#/components/responses/400'
+        404:
+          $ref: '#/components/responses/404'
+        500:
+          $ref: '#/components/responses/500'
+
+components:
+  responses:
+    200:
+      description: Success
+    400:
+      description: Bad Request
+    404:
+      description: Not Found
+    500:
+      description: Internal error
+
+  schemas:
+    PostInput:
+      type: object
+      properties:
+        userId:
+          type: integer
+          description: Идентификатор пользователя
+        text:
+          type: string
+          description: Описание поста
+        locations:
+          $ref: '#/components/schemas/Locations'
+      required:
+        - userId
+        - text
+        - locations
+
+    PostOutput:
+      type: object
+      properties:
+        postId:
+          type: integer
+          description: Идентификатор поста
+        userId:
+          type: integer
+          description: Идентификатор пользователя, создавшего пост
+        text:
+          type: string
+          description: Текст поста
+        locations:
+          $ref: '#/components/schemas/Locations'
+        photos:
+          $ref: '#/components/schemas/PhotoUrls'
+      required:
+        - postId
+        - userId
+        - text
+        - locations
+
+    Locations:
+      type: array
+      items:
+        type: number
+        format: double
+        description: Координаты локаций
+
+    Photos:
+      type: object
+      properties:
+        photos:
+          type: array
+          items:
+            type: string
+            format: binary
+          description: Список фото для прикрепления
+
+    PhotoUrls:
+      type: object
+      properties:
+        photoUrls:
+          type: array
+          items:
+            type: string
+            description: URL-адреса изображений
+
+    ReactionIn:
+      type: object
+      properties:
+        postId:
+          type: integer
+          description: Идентификатор поста
+        userId:
+          type: integer
+          description: Автор реакции
+        reactionType:
+          type: string
+          description: Тип реакции
+
+    ReactionOut:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Идентификатор реакции
+        postId:
+          type: integer
+          description: Идентификатор поста
+        userId:
+          type: integer
+          description: Автор реакции
+        reactionType:
+          type: string
+          description: Тип реакции
+        createdAt:
+          type: string
+          format: date-time
+          description: Дата реакции
+
+    CommentInput:
+      type: object
+      properties:
+        postId:
+          type: integer
+          description: Идентификатор поста
+        userId:
+          type: integer
+          description: Идентификатор пользователя
+        text:
+          type: string
+          description: Текст комментария
+      required:
+        - postId
+        - userId
+        - text
+
+    CommentOutput:
+      type: object
+      properties:
+        commentId:
+          type: integer
+          description: Идентификатор комментария
+        postId:
+          type: integer
+          description: Идентификатор поста
+        userId:
+          type: integer
+          description: Идентификатор пользователя
+        text:
+          type: string
+          description: Текст комментария
+        createdAt:
+          type: string
+          format: date-time
+          description: Дата создания комментария
+
+    FollowRequest:
+      type: object
+      properties:
+        followerId:
+          type: integer
+          description: Идентификатор подписчика
+      required:
+        - followerId
+
+    FollowerOutput:
+      type: object
+      properties:
+        userId:
+          type: integer
+          description: Идентификатор пользователя
+        followerId:
+          type: integer
+          description: Идентификатор подписчика
+        followedAt:
+          type: string
+          format: date-time
+          description: Дата подписки
