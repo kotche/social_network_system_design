@@ -1,0 +1,61 @@
+// Посты
+Table posts {
+  id int64 [primary key, increment]
+  title text
+  body text
+  user_id int64
+  created_at timestamp
+}
+
+Table locations {
+  id int64 [primary key, increment]
+  post_id int64
+  latitude double
+  longitude double
+}
+
+Table photos {
+  id int64 [primary key, increment]
+  url text [unique]  // URL изображения, хранящегося в S3
+  post_id int64
+}
+
+// Реакции
+Table reactions {
+  id int64 [primary key, increment]
+  post_id int64
+  user_id int64
+  reaction_type text
+  created_at timestamp
+}
+
+// Комментарии
+Table comments {
+  id int64 [primary key, increment]
+  post_id int64   
+  user_id int64
+  text text
+  created_at timestamp
+}
+
+// Пользователи
+Table users {
+  id int64 [primary key, increment]
+  name text [not null, unique]
+  created_at timestamp
+}
+
+Table followers {
+  user_id int64 [primary key]
+  follower_id int64
+  followed_at timestamp
+}
+
+// Внешние ключи
+Ref: "posts"."id" < "locations"."post_id"
+Ref: "posts"."id" < "photos"."post_id"
+Ref: "posts"."id" < "reactions"."post_id"  
+Ref: "posts"."id" < "comments"."post_id" 
+Ref: "users"."id" < "reactions"."user_id" 
+Ref: "users"."id" < "comments"."user_id"
+Ref: "users"."id" < "followers"."user_id"      
